@@ -8,8 +8,8 @@ package org.tyaa.teplosetejb.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,7 +20,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -31,7 +30,6 @@ import javax.validation.constraints.Size;
  * @author yurii
  */
 @Entity
-@Table(name = "HOUSE")
 @NamedQueries({
     @NamedQuery(name = "House.findAll", query = "SELECT h FROM House h")})
 public class House implements Serializable {
@@ -40,40 +38,28 @@ public class House implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
-    @Column(name = "CODE")
     private Integer code;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 16)
-    @Column(name = "SHIFR")
     private String shifr;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "BEGINDATE")
     @Temporal(TemporalType.DATE)
     private Date begindate;
-    @Column(name = "ENDDATE")
     @Temporal(TemporalType.DATE)
     private Date enddate;
     @Size(max = 16)
-    @Column(name = "POSTINDEX")
     private String postindex;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "NUMBER")
     private int number;
     @Size(max = 16)
-    @Column(name = "LITERA")
     private String litera;
-    @Column(name = "ZHEK")
     private Integer zhek;
-    @Column(name = "ZHSK")
     private Integer zhsk;
-    @Column(name = "MAXFLOOR")
     private Integer maxfloor;
-    @Column(name = "ENTRANCE")
     private Integer entrance;
-    @Column(name = "FLATCOUNT")
     private Integer flatcount;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "HEAT_LOAD")
@@ -81,24 +67,18 @@ public class House implements Serializable {
     @Column(name = "CEILING_HEIGHT")
     private BigDecimal ceilingHeight;
     @Size(max = 128)
-    @Column(name = "REMARK")
     private String remark;
     @Size(max = 16)
     @Column(name = "LINK_CODE")
     private String linkCode;
-    @Column(name = "DOCCODE")
     private Integer doccode;
-    @Column(name = "DOCPOS")
     private Integer docpos;
-    @Column(name = "RVERSION")
     private BigInteger rversion;
-    @Column(name = "HIDDEN")
     private Integer hidden;
     @Column(name = "BEGIN_YEAR")
     private Integer beginYear;
     @Column(name = "TPS_BOILER")
     private Integer tpsBoiler;
-    @Column(name = "INSPECTOR")
     private Integer inspector;
     @Column(name = "P_S1")
     private BigDecimal pS1;
@@ -113,7 +93,7 @@ public class House implements Serializable {
     @Column(name = "P_S6")
     private BigDecimal pS6;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "house")
-    private transient Collection<Account> accountCollection;
+    private transient List<Account> accountList;
     @JoinColumn(name = "AREA", referencedColumnName = "CODE")
     @ManyToOne
     private SprArea area;
@@ -367,12 +347,12 @@ public class House implements Serializable {
         this.pS6 = pS6;
     }
 
-    public Collection<Account> getAccountCollection() {
-        return accountCollection;
+    public List<Account> getAccountList() {
+        return accountList;
     }
 
-    public void setAccountCollection(Collection<Account> accountCollection) {
-        this.accountCollection = accountCollection;
+    public void setAccountList(List<Account> accountList) {
+        this.accountList = accountList;
     }
 
     public SprArea getArea() {

@@ -7,8 +7,8 @@ package org.tyaa.teplosetejb.entity;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -36,51 +36,37 @@ public class SprArea implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
-    @Column(name = "CODE")
     private Integer code;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 16)
-    @Column(name = "SHIFR")
     private String shifr;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 64)
-    @Column(name = "NAME")
     private String name;
     @Size(max = 16)
-    @Column(name = "SHORTNAME")
     private String shortname;
     @Basic(optional = false)
     @NotNull
-    @Column(name = "DISTRICT")
     private int district;
     @Size(max = 128)
-    @Column(name = "ADDRESS")
     private String address;
     @Size(max = 1048)
-    @Column(name = "BILLREMARK")
     private String billremark;
     @Size(max = 16)
     @Column(name = "LINK_CODE")
     private String linkCode;
-    @Column(name = "EXPORT")
     private Integer export;
     @Size(max = 128)
-    @Column(name = "REMARK")
     private String remark;
-    @Column(name = "SYSTEMUSER")
     private Integer systemuser;
-    @Column(name = "LASTUSERCHANGE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastuserchange;
-    @Column(name = "RVERSION")
     private BigInteger rversion;
-    @Column(name = "HIDDEN")
     private Integer hidden;
     // @Pattern(regexp="^\\(?(\\d{3})\\)?[- ]?(\\d{3})[- ]?(\\d{4})$", message="Недопустимый формат номера телефона/факса (должен иметь формат xxx-xxx-xxxx)")//if the field contains phone or fax number consider using this annotation to enforce field validation
     @Size(max = 48)
-    @Column(name = "PHONE")
     private String phone;
     @Size(max = 48)
     @Column(name = "PHONE_TI")
@@ -92,7 +78,7 @@ public class SprArea implements Serializable {
     @Column(name = "FIO_2")
     private String fio2;
     @OneToMany(mappedBy = "area")
-    private transient Collection<House> houseCollection;
+    private transient List<House> houseList;
 
     public SprArea() {
     }
@@ -252,12 +238,12 @@ public class SprArea implements Serializable {
         this.fio2 = fio2;
     }
 
-    public Collection<House> getHouseCollection() {
-        return houseCollection;
+    public List<House> getHouseList() {
+        return houseList;
     }
 
-    public void setHouseCollection(Collection<House> houseCollection) {
-        this.houseCollection = houseCollection;
+    public void setHouseList(List<House> houseList) {
+        this.houseList = houseList;
     }
 
     @Override

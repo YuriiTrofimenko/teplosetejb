@@ -1,0 +1,84 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package org.tyaa.teplosetejb.entity;
+
+import java.io.Serializable;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+/**
+ *
+ * @author yurii
+ */
+@Entity
+@Table(name = "SPR_SETS_COLOR_LINE")
+@NamedQueries({
+    @NamedQuery(name = "SprSetsColorLine.findAll", query = "SELECT s FROM SprSetsColorLine s")})
+public class SprSetsColorLine implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @Basic(optional = false)
+    @NotNull
+    private Integer code;
+    @Column(name = "LINE_COLOR")
+    private Integer lineColor;
+
+    public SprSetsColorLine() {
+    }
+
+    public SprSetsColorLine(Integer code) {
+        this.code = code;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public void setCode(Integer code) {
+        this.code = code;
+    }
+
+    public Integer getLineColor() {
+        return lineColor;
+    }
+
+    public void setLineColor(Integer lineColor) {
+        this.lineColor = lineColor;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (code != null ? code.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof SprSetsColorLine)) {
+            return false;
+        }
+        SprSetsColorLine other = (SprSetsColorLine) object;
+        if ((this.code == null && other.code != null) || (this.code != null && !this.code.equals(other.code))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "org.tyaa.teplosetejb.entity.SprSetsColorLine[ code=" + code + " ]";
+    }
+    
+}

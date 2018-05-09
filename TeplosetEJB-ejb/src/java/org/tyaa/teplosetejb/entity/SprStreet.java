@@ -7,8 +7,8 @@ package org.tyaa.teplosetejb.entity;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -37,43 +37,33 @@ public class SprStreet implements Serializable {
     @Id
     @Basic(optional = false)
     @NotNull
-    @Column(name = "CODE")
     private Integer code;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 16)
-    @Column(name = "SHIFR")
     private String shifr;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 64)
-    @Column(name = "NAME")
     private String name;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 16)
-    @Column(name = "KIND")
     private String kind;
     @Size(max = 64)
-    @Column(name = "ALTNAME")
     private String altname;
     @Size(max = 128)
-    @Column(name = "REMARK")
     private String remark;
     @Size(max = 16)
     @Column(name = "LINK_CODE")
     private String linkCode;
-    @Column(name = "SYSTEMUSER")
     private Integer systemuser;
-    @Column(name = "LASTUSERCHANGE")
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastuserchange;
-    @Column(name = "RVERSION")
     private BigInteger rversion;
-    @Column(name = "HIDDEN")
     private Integer hidden;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "street")
-    private transient Collection<House> houseCollection;
+    private transient List<House> houseList;
 
     public SprStreet() {
     }
@@ -177,12 +167,12 @@ public class SprStreet implements Serializable {
         this.hidden = hidden;
     }
 
-    public Collection<House> getHouseCollection() {
-        return houseCollection;
+    public List<House> getHouseList() {
+        return houseList;
     }
 
-    public void setHouseCollection(Collection<House> houseCollection) {
-        this.houseCollection = houseCollection;
+    public void setHouseList(List<House> houseList) {
+        this.houseList = houseList;
     }
 
     @Override
