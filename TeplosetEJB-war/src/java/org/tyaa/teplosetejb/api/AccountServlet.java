@@ -40,8 +40,32 @@ public class AccountServlet extends HttpServlet {
         Gson gson = new Gson();
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
-            out.println(gson.toJson(mAccountFacade.findAll().get(100)));
-            //out.println(gson.toJson(mAccountFacade.findAll()));
+            
+            if (request.getParameterMap().containsKey("action")) {
+                
+                String action = request.getParameter("action");
+                
+                switch(action){
+                
+                    case "fetch-range":{
+                    
+                        int from = Integer.parseInt(request.getParameter("from"));
+                        int to = Integer.parseInt(request.getParameter("to"));
+                        out.println(gson.toJson(mAccountFacade.findRange(new int[]{from, to})));
+                        break;
+                    }
+                    
+                    case "fetch-by-id":{
+                    
+                        Long id = Long.parseLong(request.getParameter("id"));
+                        out.println(gson.toJson(mAccountFacade.find(id)));
+                        break;
+                    }
+                }
+            } else {
+            
+                out.println(gson.toJson(mAccountFacade.findAll().get(100)));
+            }
         }
     }
 
