@@ -8,6 +8,8 @@ package org.tyaa.teplosetejb.api;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,6 +17,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.tyaa.teplosetejb.facade.AccountFacade;
+import org.tyaa.teplosetejb.model.AccountTitle;
+import org.tyaa.teplosetejb.model.Result;
 
 /**
  *
@@ -51,7 +55,14 @@ public class AccountServlet extends HttpServlet {
                     
                         int from = Integer.parseInt(request.getParameter("from"));
                         int to = Integer.parseInt(request.getParameter("to"));
-                        out.println(gson.toJson(mAccountFacade.findRange(new int[]{from, to})));
+                        
+                        Result result =
+                            new Result(
+                                mAccountFacade.findRange(new int[]{from, to}).stream().map((account) -> {
+                                    return new AccountTitle(account.getCode(), account.getFio());
+                                }).collect(Collectors.toList())
+                            );
+                        out.println(gson.toJson(result));
                         break;
                     }
                     
