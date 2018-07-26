@@ -142,6 +142,7 @@ public class HDocheaders implements Serializable {
     private Integer groupHouse;
     @Column(name = "GROUP_TARIFF")
     private Integer groupTariff;
+    @Column(name = "BOILERHOUSE")
     private Integer boilerhouse;
     private Integer saldokind;
     @Column(name = "DISCOUNT_PERCENT")

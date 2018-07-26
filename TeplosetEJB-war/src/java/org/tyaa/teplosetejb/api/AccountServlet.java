@@ -16,7 +16,19 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.tyaa.teplosetejb.entity.Account;
+import org.tyaa.teplosetejb.entity.AccountService;
+import org.tyaa.teplosetejb.entity.Pipe;
+import org.tyaa.teplosetejb.entity.PipeEntry;
+import org.tyaa.teplosetejb.entity.PipeTopology;
+import org.tyaa.teplosetejb.entity.SprHeatpoint;
 import org.tyaa.teplosetejb.facade.AccountFacade;
+import org.tyaa.teplosetejb.facade.AccountServiceFacade;
+import org.tyaa.teplosetejb.facade.PipeEntryFacade;
+import org.tyaa.teplosetejb.facade.PipeFacade;
+import org.tyaa.teplosetejb.facade.PipeTopologyFacade;
+import org.tyaa.teplosetejb.facade.SprHeatpointFacade;
+import org.tyaa.teplosetejb.model.AccountDetails;
 import org.tyaa.teplosetejb.model.AccountTitle;
 import org.tyaa.teplosetejb.model.Result;
 
@@ -29,6 +41,16 @@ public class AccountServlet extends HttpServlet {
 
     @EJB
     private AccountFacade mAccountFacade;
+    @EJB
+    private AccountServiceFacade mAccountServiceFacade;
+    @EJB
+    private PipeFacade mPipeFacade;
+    @EJB
+    private PipeTopologyFacade mPipeTopologyFacade;
+    @EJB
+    private PipeEntryFacade mPipeEntryFacade;
+    @EJB
+    private SprHeatpointFacade mSprHeatpointFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -66,10 +88,89 @@ public class AccountServlet extends HttpServlet {
                         break;
                     }
                     
-                    case "fetch-by-id":{
+                    //Старая версия выдавала сущность "Аккаунт"
+                    //с данными всех полей, но
+                    //без дополнительных данных
+                    /*case "fetch-by-id":{
                     
                         Long id = Long.parseLong(request.getParameter("id"));
                         out.println(gson.toJson(mAccountFacade.find(id)));
+                        break;
+                    }*/
+                    
+                    case "fetch-by-id":{
+                    
+                        Long id = Long.parseLong(request.getParameter("id"));
+                        
+                        //
+                        Account account = mAccountFacade.find(id);
+                        
+                        //Получаем из БД сущность службы для аккаунта
+                        //по его коду
+                        AccountService accountService =
+                                mAccountServiceFacade.findByAccountCode(id);
+                        Integer accountPipecode = accountService.getAccountPipecode();
+                        Pipe pipe = mPipeFacade.find(accountPipecode);
+                        PipeTopology pipeTopology = mPipeTopologyFacade.findByPipecode(pipe);
+                        Pipe ownerPipecode = pipeTopology.getOwnerPipecode();
+                        PipeEntry pipeEntry = mPipeEntryFacade.findByOwnerPipecode(ownerPipecode);
+                        Long pipeObject = pipeEntry.getPipeObject();
+                        SprHeatpoint sprHeatpoint = mSprHeatpointFacade.find(pipeObject.intValue());
+                        
+                        AccountDetails accountDetails =
+                                new AccountDetails(
+                                        id
+                                        , account.getFio()
+                                        , "Адрес: "
+                                            + account.getHouse().getStreet().getKind()
+                                            + " "
+                                            + account.getHouse().getStreet().getName()
+                                            + " дом "
+                                            + account.getHouse().getNumber()
+                                            + " кв. "
+                                            + account.getFlat()
+                                        , account.getHouse().getArea().getName()
+                                        , account.getPhone()
+                                        , "Адрес и телефон абонентного участка: "
+                                            + account.getHouse().getArea().getAddress()
+                                            + ", "
+                                            + account.getHouse().getArea().getRemark()
+                                            + " "
+                                            + account.getHouse().getArea().getPhone()
+                                            + ", "
+                                            + account.getHouse().getArea().getPhoneTi()
+                                        , (sprHeatpoint != null)
+                                                ? (sprHeatpoint.getShifr()
+                                                    + " "
+                                                    + sprHeatpoint.getName())
+                                                : "-"
+                                        , "ToDo: boilername");
+                        /*AccountDetails accountDetails =
+                                new AccountDetails(
+                                        id
+                                        , account.getFio()
+                                        , "Адрес: "
+                                            + account.getHouse().getStreet().getKind()
+                                            + " "
+                                            + account.getHouse().getStreet().getName()
+                                            + " дом "
+                                            + account.getHouse().getNumber()
+                                            + " кв. "
+                                            + account.getFlat()
+                                        , "Район: "
+                                            + account.getHouse().getArea().getName()
+                                        , "Адрес и телефон абонентного участка: "
+                                            + account.getHouse().getArea().getAddress()
+                                            + ", "
+                                            + account.getHouse().getArea().getRemark()
+                                            + " "
+                                            + account.getHouse().getArea().getPhone()
+                                            + ", "
+                                            + account.getHouse().getArea().getPhoneTi()
+                                        , String.valueOf(pipeObject)
+                                        , "ToDo: boilername");*/
+                        
+                        out.println(gson.toJson(accountDetails));
                         break;
                     }
                 }
