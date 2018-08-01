@@ -40,15 +40,16 @@ public class PipeEntryFacade extends AbstractFacade<PipeEntry> {
     
     /* Добавленные методы */
     
-    public PipeEntry findByOwnerPipecode(Pipe _ownerPipecode) {
+    public PipeEntry findByOwnerPipecode(List<Pipe> _ownerPipes, Integer _level) {
         
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery cq = cb.createQuery();
         Root<PipeEntry> pipeEntryRoot = cq.from(PipeEntry.class);
         
         List<Predicate> predicateList = new ArrayList<>();
-        predicateList.add(cb.equal(pipeEntryRoot.get("pipecode"), _ownerPipecode));
-        //predicateList.add(cb.equal(pipeEntryRoot.get("pipeLevel"), 30));
+        //predicateList.add(cb.equal(pipeEntryRoot.get("pipecode"), _ownerPipecode));
+        predicateList.add(pipeEntryRoot.get("pipecode").in(_ownerPipes));
+        predicateList.add(cb.equal(pipeEntryRoot.get("pipeLevel"), _level));
         
         cq.select(pipeEntryRoot).where(predicateList.toArray(new Predicate[]{}));
         cq.orderBy(cb.asc(pipeEntryRoot.get("pipeObject")));
