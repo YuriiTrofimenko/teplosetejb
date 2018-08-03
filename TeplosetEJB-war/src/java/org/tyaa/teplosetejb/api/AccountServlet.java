@@ -36,6 +36,8 @@ import org.tyaa.teplosetejb.model.AccountDetails;
 import org.tyaa.teplosetejb.model.AccountTitle;
 import org.tyaa.teplosetejb.model.Result;
 
+import java.net.URLDecoder;
+
 /**
  *
  * @author yurii
@@ -127,43 +129,57 @@ public class AccountServlet extends HttpServlet {
                         //
                         Account account = mAccountFacade.find(id);
                         
-                        //Получаем из БД сущность службы для аккаунта
-                        //по его коду
-                        AccountService accountService =
-                                mAccountServiceFacade.findByAccountCode(id);
+                        String surname = "";
+                        //
+                        if(request.getParameterMap().containsKey("surname")){
+                            
+                            surname =
+                                URLDecoder.decode(
+                                    request.getParameter("surname"), "UTF-8"
+                                );
+                        }
                         
-                        Integer accountPipecode = accountService.getAccountPipecode();
-                        Pipe pipe = mPipeFacade.find(accountPipecode);
-                        PipeTopology pipeTopology = mPipeTopologyFacade.findByPipecode(pipe);
+                        if(account != null
+                            && account.getF().toUpperCase().equals(surname.toUpperCase())){
+                        //if(account != null){
                         
-                        //List_Heatpointhousename
-                        Pipe ownerPipecode = pipeTopology.getOwnerPipecode();
-                        List<PipeTopology> pipeTopologiesByOwner = mPipeTopologyFacade.findByPipecode2(ownerPipecode);
-                        List<Pipe> pipesByOwners =
-                                pipeTopologiesByOwner.stream().map((pt) -> {
-                                    return mPipeFacade.find(pt.getOwnerPipecode().getCode());
-                                })
-                                .collect(Collectors.toList());
-                        
-                        PipeEntry pipeEntry = mPipeEntryFacade.findByOwnerPipecode(pipesByOwners, 30);
-                        Long pipeObject = pipeEntry.getPipeObject();
-                        SprHeatpoint sprHeatpoint = mSprHeatpointFacade.find(pipeObject.intValue());
-                        
-                        //List_Boilerhousename
-                        Pipe ownerPipecode2 = pipeEntry.getPipecode();
-                        List<PipeTopology> pipeTopologiesByOwner2 =
-                                mPipeTopologyFacade.findByPipecode2(ownerPipecode2);
-                        List<Pipe> pipesByOwners2 =
-                                pipeTopologiesByOwner2.stream().map((pt) -> {
-                                    return mPipeFacade.find(pt.getOwnerPipecode().getCode());
-                                })
-                                .collect(Collectors.toList());
-                        
-                        PipeEntry pipeEntry2 = mPipeEntryFacade.findByOwnerPipecode(pipesByOwners2, 40);
-                        Integer pipeObject2 = Integer.parseInt(String.valueOf(pipeEntry2.getPipeObject()));
-                        SprBoiler sprBoiler = mSprBoilerFacade.find(pipeObject2);
-                        
-                        AccountDetails accountDetails =
+                            //Получаем из БД сущность службы для аккаунта
+                            //по его коду
+                            AccountService accountService =
+                                    mAccountServiceFacade.findByAccountCode(id);
+
+                            Integer accountPipecode = accountService.getAccountPipecode();
+                            Pipe pipe = mPipeFacade.find(accountPipecode);
+                            PipeTopology pipeTopology = mPipeTopologyFacade.findByPipecode(pipe);
+
+                            //List_Heatpointhousename
+                            Pipe ownerPipecode = pipeTopology.getOwnerPipecode();
+                            List<PipeTopology> pipeTopologiesByOwner = mPipeTopologyFacade.findByPipecode2(ownerPipecode);
+                            List<Pipe> pipesByOwners =
+                                    pipeTopologiesByOwner.stream().map((pt) -> {
+                                        return mPipeFacade.find(pt.getOwnerPipecode().getCode());
+                                    })
+                                    .collect(Collectors.toList());
+
+                            PipeEntry pipeEntry = mPipeEntryFacade.findByOwnerPipecode(pipesByOwners, 30);
+                            Long pipeObject = pipeEntry.getPipeObject();
+                            SprHeatpoint sprHeatpoint = mSprHeatpointFacade.find(pipeObject.intValue());
+
+                            //List_Boilerhousename
+                            Pipe ownerPipecode2 = pipeEntry.getPipecode();
+                            List<PipeTopology> pipeTopologiesByOwner2 =
+                                    mPipeTopologyFacade.findByPipecode2(ownerPipecode2);
+                            List<Pipe> pipesByOwners2 =
+                                    pipeTopologiesByOwner2.stream().map((pt) -> {
+                                        return mPipeFacade.find(pt.getOwnerPipecode().getCode());
+                                    })
+                                    .collect(Collectors.toList());
+
+                            PipeEntry pipeEntry2 = mPipeEntryFacade.findByOwnerPipecode(pipesByOwners2, 40);
+                            Integer pipeObject2 = Integer.parseInt(String.valueOf(pipeEntry2.getPipeObject()));
+                            SprBoiler sprBoiler = mSprBoilerFacade.find(pipeObject2);
+
+                            AccountDetails accountDetails =
                                 new AccountDetails(
                                         id
                                         , account.getFio()
@@ -195,32 +211,13 @@ public class AccountServlet extends HttpServlet {
                                                     + " "
                                                     + sprBoiler.getName())
                                                 : "-");
-                        /*AccountDetails accountDetails =
-                                new AccountDetails(
-                                        id
-                                        , account.getFio()
-                                        , "Адрес: "
-                                            + account.getHouse().getStreet().getKind()
-                                            + " "
-                                            + account.getHouse().getStreet().getName()
-                                            + " дом "
-                                            + account.getHouse().getNumber()
-                                            + " кв. "
-                                            + account.getFlat()
-                                        , "Район: "
-                                            + account.getHouse().getArea().getName()
-                                        , "Адрес и телефон абонентного участка: "
-                                            + account.getHouse().getArea().getAddress()
-                                            + ", "
-                                            + account.getHouse().getArea().getRemark()
-                                            + " "
-                                            + account.getHouse().getArea().getPhone()
-                                            + ", "
-                                            + account.getHouse().getArea().getPhoneTi()
-                                        , String.valueOf(pipeObject)
-                                        , "ToDo: boilername");*/
+
+                            out.println(gson.toJson(accountDetails));
+                        } else {
                         
-                        out.println(gson.toJson(accountDetails));
+                            out.println(gson.toJson("not_found"));
+                        }
+                        
                         break;
                     }
                     
