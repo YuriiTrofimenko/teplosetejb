@@ -4,6 +4,8 @@
     <!--    <jta-data-source>java:module/jdbc/TeplosetDev</jta-data-source>-->
     <jta-data-source>jdbc/Teploset</jta-data-source>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
-    <properties/>
+    <properties>
+        <property name="eclipselink.query-results-cache" value="false"/>
+    </properties>
   </persistence-unit>
 </persistence>
