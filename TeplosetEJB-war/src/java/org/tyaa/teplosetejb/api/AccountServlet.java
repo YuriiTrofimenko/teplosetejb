@@ -283,8 +283,7 @@ public class AccountServlet extends HttpServlet {
             new AccountDetails(
                     id
                     , _account.getFio()
-                    , "Адрес: "
-                        + _account.getHouse().getStreet().getKind()
+                    , _account.getHouse().getStreet().getKind()
                         + " "
                         + _account.getHouse().getStreet().getName()
                         + " дом "
@@ -293,8 +292,7 @@ public class AccountServlet extends HttpServlet {
                         + _account.getFlat()
                     , _account.getHouse().getArea().getName()
                     , _account.getPhone()
-                    , "Адрес и телефон абонентного участка: "
-                        + _account.getHouse().getArea().getAddress()
+                    , _account.getHouse().getArea().getAddress()
                         + ", "
                         + _account.getHouse().getArea().getRemark()
                         + " "
@@ -321,8 +319,8 @@ public class AccountServlet extends HttpServlet {
         
         AccountDogRestr accountDogRestr =
             (accountDogRestrs != null && accountDogRestrs.size() > 0)
-            ? accountDogRestrs.stream().sorted((o1, o2) -> {
-                return o1.getEndDate().compareTo(o2.getEndDate());
+            ? accountDogRestrs.stream().sorted((dog1, dog2) -> {
+                return dog2.getEndDate().compareTo(dog1.getEndDate());
             }).collect(Collectors.toList()).get(0)
             : null;
         
