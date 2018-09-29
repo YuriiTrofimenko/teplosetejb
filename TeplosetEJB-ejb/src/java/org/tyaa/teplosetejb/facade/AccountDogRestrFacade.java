@@ -46,7 +46,7 @@ public class AccountDogRestrFacade extends AbstractFacade<AccountDogRestr> {
                 cq.from(AccountDogRestr.class);
         
         List<Predicate> predicateList = new ArrayList<>();
-        System.out.println("id: " + _accountcode);//217788L
+        //System.out.println("id: " + _accountcode);//217788L
         predicateList.add(
             cb.equal(accountDogRestrRoot.get("accountcode"), _accountcode)
         );

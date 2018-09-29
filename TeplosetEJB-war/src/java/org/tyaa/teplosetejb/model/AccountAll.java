@@ -5,6 +5,7 @@
  */
 package org.tyaa.teplosetejb.model;
 
+import java.util.List;
 import org.tyaa.teplosetejb.entity.AccountDogRestr;
 
 /**
@@ -17,12 +18,19 @@ public class AccountAll {
     public AccountDetails accountDetails;
     //
     public AccountDogRestr accountDogRestr;
+    //
+    public List<AccountPayments> accountPayments;
 
     public AccountAll() {
     }
 
-    public AccountAll(AccountDetails accountDetails, AccountDogRestr accountDogRestr) {
+    public AccountAll(
+            AccountDetails accountDetails
+            , AccountDogRestr accountDogRestr
+            , List<AccountPayments> accountPayments
+    ) {
         this.accountDetails = accountDetails;
         this.accountDogRestr = accountDogRestr;
+        this.accountPayments = accountPayments;
     }
 }

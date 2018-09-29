@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,9 +39,17 @@ import org.tyaa.teplosetejb.model.AccountTitle;
 import org.tyaa.teplosetejb.model.Result;
 
 import java.net.URLDecoder;
+import java.util.Date;
 import org.tyaa.teplosetejb.entity.AccountDogRestr;
+import org.tyaa.teplosetejb.entity.Calcresult;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
+import org.tyaa.teplosetejb.facade.CalcresultFacade;
+import org.tyaa.teplosetejb.facade.ProcdateFacade;
+import org.tyaa.teplosetejb.facade.SprPayerFacade;
+import org.tyaa.teplosetejb.facade.SprPaymenttypeFacade;
+import org.tyaa.teplosetejb.facade.SprServiceFacade;
 import org.tyaa.teplosetejb.model.AccountAll;
+import org.tyaa.teplosetejb.model.AccountPayments;
 
 /**
  *
@@ -68,6 +77,21 @@ public class AccountServlet extends HttpServlet {
     //Dogovor info
     @EJB
     private AccountDogRestrFacade mAccountDogRestrFacade;
+    //Payments
+    @EJB
+    private CalcresultFacade mCalcresultFacade;
+    //Procedure date
+    @EJB
+    private ProcdateFacade mProcdateFacade;
+    //Bank
+    @EJB
+    private SprPayerFacade mSprPayerFacade;
+    //Payment type
+    @EJB
+    private SprPaymenttypeFacade mSprPaymenttypeFacade;
+    //Service
+    @EJB
+    private SprServiceFacade mSprServiceFacade;
     
     @EJB
     private WebAccountDAO mWebAccountDAO;
@@ -173,7 +197,7 @@ public class AccountServlet extends HttpServlet {
                     case "fetch-all-by-id":{
                     
                         try{
-                        
+                        System.out.println(request.getParameter("id"));
                             Long id = Long.parseLong(request.getParameter("id"));
 
                             //
@@ -200,10 +224,14 @@ public class AccountServlet extends HttpServlet {
                                 AccountDogRestr accountDogRestr =
                                         getAccountDogRestr(account);
                                 
+                                List<AccountPayments> accountPayments =
+                                        getAccountPayments(account);
+                                
                                 AccountAll accountAll =
                                         new AccountAll(
                                                 accountDetails
                                                 , accountDogRestr
+                                                , accountPayments
                                         );
                                 
                                 out.println(gson.toJson(accountAll));
@@ -241,6 +269,7 @@ public class AccountServlet extends HttpServlet {
         }
     }
     
+    //Получение суб-модели основных данных аккаунта
     private AccountDetails getAccountDetails(Account _account){
     
         Long id = _account.getCode();
@@ -311,7 +340,7 @@ public class AccountServlet extends HttpServlet {
                             : "-");
         return accountDetails;
     }
-    
+    //Получение суб-модели данных о договоре аккаунта
     private AccountDogRestr getAccountDogRestr(Account _account){
     
         List<AccountDogRestr> accountDogRestrs =
@@ -325,6 +354,61 @@ public class AccountServlet extends HttpServlet {
             : null;
         
         return accountDogRestr;
+    }
+    
+    //Получение суб-модели данных о платежах аккаунта
+    private List<AccountPayments> getAccountPayments(Account _account){
+    
+        List<Calcresult> calcresults =
+            mCalcresultFacade.findByAccountCode(_account.getCode());
+        
+        /*System.out.println("Result: ");
+        calcresults.forEach((t) -> {
+            System.out.println(t.getSumm());
+        });*/
+        
+        List<AccountPayments> accountPayments =
+            calcresults.stream()
+                .map((c) -> {
+                            Date procDate =
+                                    mProcdateFacade.find(c.getProcdate())
+                                    .getProcdate();
+                            
+                            String payerName =
+                                mSprPayerFacade.find(c.getCode1()).getName();
+                            
+                            String paymentType =
+                                mSprPaymenttypeFacade.find(c.getCode2()).getName();
+                            
+                            String service = "";
+                            if (c.getService() != null) {
+                                service =
+                                    mSprServiceFacade.find(c.getService()).getName();
+                            }
+                            
+                            return new AccountPayments(
+                                    c.getDateaction()
+                                    , c.getSumm()
+                                    , procDate
+                                    , payerName
+                                    , paymentType
+                                    , service
+                            );
+                            /*return new AccountPayments(
+                                    new Date()
+                                    , new BigDecimal(12)
+                            );*/
+                        })
+                .collect(Collectors.toList());
+        
+        accountPayments =
+            (accountPayments != null && accountPayments.size() > 0)
+            ? accountPayments.stream().sorted((p1, p2) -> {
+                return p2.dateaction.compareTo(p1.dateaction);
+            }).collect(Collectors.toList())
+            : null;
+        
+        return accountPayments;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

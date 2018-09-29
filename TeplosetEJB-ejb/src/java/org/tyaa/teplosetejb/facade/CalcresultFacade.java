@@ -5,9 +5,16 @@
  */
 package org.tyaa.teplosetejb.facade;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import org.tyaa.teplosetejb.entity.Calcresult;
 
 /**
@@ -29,4 +36,29 @@ public class CalcresultFacade extends AbstractFacade<Calcresult> {
         super(Calcresult.class);
     }
     
+    /* Добавленные методы */
+    
+    public List<Calcresult> findByAccountCode(long _accountcode) {
+    
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery cq = cb.createQuery();
+        Root<Calcresult> calcresultRoot =
+                cq.from(Calcresult.class);
+        List<Predicate> predicateList = new ArrayList<>();
+        predicateList.add(
+            cb.equal(calcresultRoot.get("accountcode"), _accountcode));
+        predicateList.add(
+            calcresultRoot.get("ps").in(new String[]{"40"}));
+        cq.select(calcresultRoot)
+                .where(predicateList.toArray(new Predicate[]{}));
+        TypedQuery<Calcresult> q = em.createQuery(cq);
+        
+        List<Calcresult> calcresults = q.getResultList();
+        /*System.out.println("Result: ");
+        calcresults.forEach((t) -> {
+            System.out.println(t.getSumm());
+        });*/
+        
+        return calcresults;
+    }
 }
