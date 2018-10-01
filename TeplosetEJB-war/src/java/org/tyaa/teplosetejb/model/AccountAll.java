@@ -20,6 +20,8 @@ public class AccountAll {
     public AccountDogRestr accountDogRestr;
     //
     public List<AccountPayments> accountPayments;
+    //
+    public List<AccountBill> accountBills;
 
     public AccountAll() {
     }
@@ -28,9 +30,11 @@ public class AccountAll {
             AccountDetails accountDetails
             , AccountDogRestr accountDogRestr
             , List<AccountPayments> accountPayments
+            , List<AccountBill> accountBills
     ) {
         this.accountDetails = accountDetails;
         this.accountDogRestr = accountDogRestr;
         this.accountPayments = accountPayments;
+        this.accountBills = accountBills;
     }
 }

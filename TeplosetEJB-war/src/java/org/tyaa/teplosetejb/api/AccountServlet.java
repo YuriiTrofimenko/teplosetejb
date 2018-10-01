@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,16 +40,22 @@ import org.tyaa.teplosetejb.model.AccountTitle;
 import org.tyaa.teplosetejb.model.Result;
 
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Date;
 import org.tyaa.teplosetejb.entity.AccountDogRestr;
 import org.tyaa.teplosetejb.entity.Calcresult;
+import org.tyaa.teplosetejb.entity.DocMtpsBill;
+import org.tyaa.teplosetejb.entity.SprBillType;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
 import org.tyaa.teplosetejb.facade.CalcresultFacade;
+import org.tyaa.teplosetejb.facade.DocMtpsBillFacade;
 import org.tyaa.teplosetejb.facade.ProcdateFacade;
+import org.tyaa.teplosetejb.facade.SprBillTypeFacade;
 import org.tyaa.teplosetejb.facade.SprPayerFacade;
 import org.tyaa.teplosetejb.facade.SprPaymenttypeFacade;
 import org.tyaa.teplosetejb.facade.SprServiceFacade;
 import org.tyaa.teplosetejb.model.AccountAll;
+import org.tyaa.teplosetejb.model.AccountBill;
 import org.tyaa.teplosetejb.model.AccountPayments;
 
 /**
@@ -92,6 +99,12 @@ public class AccountServlet extends HttpServlet {
     //Service
     @EJB
     private SprServiceFacade mSprServiceFacade;
+    //Bill
+    @EJB
+    private DocMtpsBillFacade mMtpsBillFacade;
+    //Bill type
+    @EJB
+    private SprBillTypeFacade mBillTypeFacade;
     
     @EJB
     private WebAccountDAO mWebAccountDAO;
@@ -197,7 +210,7 @@ public class AccountServlet extends HttpServlet {
                     case "fetch-all-by-id":{
                     
                         try{
-                        System.out.println(request.getParameter("id"));
+                        //System.out.println(request.getParameter("id"));
                             Long id = Long.parseLong(request.getParameter("id"));
 
                             //
@@ -227,11 +240,15 @@ public class AccountServlet extends HttpServlet {
                                 List<AccountPayments> accountPayments =
                                         getAccountPayments(account);
                                 
+                                List<AccountBill> accountBills =
+                                        getAccountBills(account);
+                                
                                 AccountAll accountAll =
                                         new AccountAll(
                                                 accountDetails
                                                 , accountDogRestr
                                                 , accountPayments
+                                                , accountBills
                                         );
                                 
                                 out.println(gson.toJson(accountAll));
@@ -409,6 +426,76 @@ public class AccountServlet extends HttpServlet {
             : null;
         
         return accountPayments;
+    }
+    
+    //Получение суб-модели данных аккаунта для заполнения квитанций
+    private List<AccountBill> getAccountBills(Account _account){
+        
+        List<AccountBill> accountBillsResult = new ArrayList<>();
+    
+        List<DocMtpsBill> accountBills =
+            mMtpsBillFacade.findLastListByAccountCode(_account.getCode());
+        
+        /*System.out.println("Result: ");
+        accountBills.forEach((b) -> {
+            System.out.println(b.getBillType());
+        });*/
+        
+        if (accountBills != null && accountBills.size() > 0) {
+            
+            Integer firstElementCode = 0;
+            List<DocMtpsBill> accountBillsSelected = new ArrayList<>();
+            for (DocMtpsBill accountBill : accountBills) {
+                if (!accountBill.getBillType().equals(firstElementCode)) {
+                    accountBillsSelected.add(accountBill);
+                    firstElementCode = accountBill.getCode();
+                }
+            }
+            
+            /*System.out.println("Result: ");
+            accountBillsSelected.forEach((b) -> {
+                System.out.println(b.getBillType());
+            });*/
+
+            accountBillsResult =
+                accountBillsSelected.stream()
+                    .map((b) -> {
+                        
+                        String type = "";
+                        String title = "";
+                        BigDecimal beginMeter = b.getBeginMeterValue();
+                        BigDecimal volume = b.getVolume();
+                        BigDecimal endMeter = null;
+                        if (beginMeter != null) {
+                            endMeter = beginMeter.add(volume);
+                        }
+                        String tariff = b.getTariffTxt();
+                        BigDecimal subsidyAmount = b.getSubsSumm();
+                        BigDecimal amountToBePaid = b.getKOplateSumm();
+
+                        if (b.getBillType() != null) {
+                            SprBillType billType =
+                                mBillTypeFacade.find(b.getBillType());
+
+                            type = billType.getRemark();
+                            title = billType.getName() + " " + billType.getShifr();
+                        }
+
+                        return new AccountBill(
+                                type
+                                , title
+                                , beginMeter
+                                , volume
+                                , endMeter
+                                , tariff
+                                , subsidyAmount
+                                , amountToBePaid
+                        );
+                    })
+                .collect(Collectors.toList());
+        }
+        
+        return accountBillsResult;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
