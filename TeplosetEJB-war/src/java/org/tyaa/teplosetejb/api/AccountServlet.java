@@ -462,7 +462,8 @@ public class AccountServlet extends HttpServlet {
                     .map((b) -> {
                         
                         String type = "";
-                        String title = "";
+                        String titleLong = "";
+                        String titleShort = "";
                         BigDecimal beginMeter = b.getBeginMeterValue();
                         BigDecimal volume = b.getVolume();
                         BigDecimal endMeter = null;
@@ -478,12 +479,15 @@ public class AccountServlet extends HttpServlet {
                                 mBillTypeFacade.find(b.getBillType());
 
                             type = billType.getRemark();
-                            title = billType.getName() + " " + billType.getShifr();
+                            //title = billType.getName() + " " + billType.getShifr();
+                            titleLong = billType.getName();
+                            titleShort = billType.getShifr();
                         }
 
                         return new AccountBill(
                                 type
-                                , title
+                                , titleLong
+                                , titleShort
                                 , beginMeter
                                 , volume
                                 , endMeter

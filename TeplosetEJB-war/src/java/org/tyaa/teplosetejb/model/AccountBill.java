@@ -17,8 +17,10 @@ public class AccountBill {
     
     //Тип квитанции
     public String type;
-    //Название и шифр услуги
-    public String title;
+    //Название услуги
+    public String titleLong;
+    //шифр услуги
+    public String titleShort;
     //Начальные показания счетчика
     public BigDecimal beginMeter;
     //Потребленный объем
@@ -35,9 +37,10 @@ public class AccountBill {
     public AccountBill() {
     }
 
-    public AccountBill(String type, String title, BigDecimal beginMeter, BigDecimal volume, BigDecimal endMeter, String tariff, BigDecimal subsidyAmount, BigDecimal amountToBePaid) {
+    public AccountBill(String type, String titleLong, String titleShort, BigDecimal beginMeter, BigDecimal volume, BigDecimal endMeter, String tariff, BigDecimal subsidyAmount, BigDecimal amountToBePaid) {
         this.type = type;
-        this.title = title;
+        this.titleLong = titleLong;
+        this.titleShort = titleShort;
         this.beginMeter = beginMeter;
         this.volume = volume;
         this.endMeter = endMeter;
@@ -45,4 +48,6 @@ public class AccountBill {
         this.subsidyAmount = subsidyAmount;
         this.amountToBePaid = amountToBePaid;
     }
+
+    
 }
