@@ -5,7 +5,7 @@
         <group>
             <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-ejb/src/java/org/tyaa/teplosetejb/entity/DocMtpsBill.java</file>
             <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-ejb/src/java/org/tyaa/teplosetejb/facade/CalcresultFacade.java</file>
-            <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-ejb/src/java/org/tyaa/teplosetejb/facade/DocMtpsBillFacade.java</file>
+            <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-ejb/src/java/org/tyaa/teplosetejb/facade/SaldoDetailFacade.java</file>
         </group>
     </open-files>
 </project-private>

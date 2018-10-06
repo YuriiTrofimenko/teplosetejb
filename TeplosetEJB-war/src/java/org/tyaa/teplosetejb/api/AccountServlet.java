@@ -8,6 +8,7 @@ package org.tyaa.teplosetejb.api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -45,11 +46,13 @@ import java.util.Date;
 import org.tyaa.teplosetejb.entity.AccountDogRestr;
 import org.tyaa.teplosetejb.entity.Calcresult;
 import org.tyaa.teplosetejb.entity.DocMtpsBill;
+import org.tyaa.teplosetejb.entity.SaldoDetail;
 import org.tyaa.teplosetejb.entity.SprBillType;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
 import org.tyaa.teplosetejb.facade.CalcresultFacade;
 import org.tyaa.teplosetejb.facade.DocMtpsBillFacade;
 import org.tyaa.teplosetejb.facade.ProcdateFacade;
+import org.tyaa.teplosetejb.facade.SaldoDetailFacade;
 import org.tyaa.teplosetejb.facade.SprBillTypeFacade;
 import org.tyaa.teplosetejb.facade.SprPayerFacade;
 import org.tyaa.teplosetejb.facade.SprPaymenttypeFacade;
@@ -57,6 +60,7 @@ import org.tyaa.teplosetejb.facade.SprServiceFacade;
 import org.tyaa.teplosetejb.model.AccountAll;
 import org.tyaa.teplosetejb.model.AccountBill;
 import org.tyaa.teplosetejb.model.AccountPayments;
+import org.tyaa.teplosetejb.model.AccountRevise;
 
 /**
  *
@@ -105,6 +109,9 @@ public class AccountServlet extends HttpServlet {
     //Bill type
     @EJB
     private SprBillTypeFacade mBillTypeFacade;
+    //Revise data (month saldo)
+    @EJB
+    private SaldoDetailFacade mSaldoDetailFacade;
     
     @EJB
     private WebAccountDAO mWebAccountDAO;
@@ -243,12 +250,16 @@ public class AccountServlet extends HttpServlet {
                                 List<AccountBill> accountBills =
                                         getAccountBills(account);
                                 
+                                List<AccountRevise> accountRevises =
+                                        getAccountRevise(account);
+                                
                                 AccountAll accountAll =
                                         new AccountAll(
                                                 accountDetails
                                                 , accountDogRestr
                                                 , accountPayments
                                                 , accountBills
+                                                , accountRevises
                                         );
                                 
                                 out.println(gson.toJson(accountAll));
@@ -500,6 +511,95 @@ public class AccountServlet extends HttpServlet {
         }
         
         return accountBillsResult;
+    }
+    
+    //Получение суб-модели данных сверки аккаунта по месяцам
+    private List<AccountRevise> getAccountRevise(Account _account){
+        
+        List<AccountRevise> accountRevisesResult = new ArrayList<>();
+    
+        List<SaldoDetail> accountSaldoDetails =
+            mSaldoDetailFacade.findByAccountCode(_account.getCode());
+        
+        //System.out.println("Result: ");
+        /*accountSaldoDetails.forEach((s) -> {
+            System.out.println(s.getGroupservice());
+        });*/
+        
+        if (accountSaldoDetails != null && accountSaldoDetails.size() > 0) {
+            
+            try{
+                accountRevisesResult =
+                    accountSaldoDetails.stream()
+                        .map((s) -> {
+
+                            Date monthYearDate =
+                                mProcdateFacade.find(s.getProcdate())
+                                    .getProcdate();
+                            BigDecimal invoice = s.getNachSumm();
+                            BigDecimal payment = s.getPaySumm();
+
+                            //Heat
+                            if (s.getGroupservice().equals(2)) {
+
+                                return new AccountRevise(
+                                    monthYearDate
+                                    , s.getSaldoin()
+                                    , s.getSaldoout()
+                                    , null
+                                    , null
+                                    , invoice
+                                    , payment
+                                );
+                            //Water
+                            } else if (s.getGroupservice().equals(1)) {
+
+                                return new AccountRevise(
+                                    monthYearDate
+                                    , s.getSaldoin()
+                                    , s.getSaldoout()
+                                    , invoice
+                                    , payment
+                                    , null
+                                    , null
+                                );
+                            } else {
+
+                                return new AccountRevise(
+                                    monthYearDate
+                                    , s.getSaldoin()
+                                    , s.getSaldoout()
+                                    , null
+                                    , null
+                                    , null
+                                    , null
+                                );
+                            }
+                        })
+                    .collect(
+                        Collectors.collectingAndThen(    
+                            Collectors.toMap(
+                                AccountRevise::getMonthYear, // use month as key
+                                AccountRevise::new,      // use copy constructor => don't mutate original revises
+                                AccountRevise::merge
+                            )
+                            ,(m) -> {
+                                return new ArrayList<>(m.values());
+                            }
+                        )
+                    )
+                    .stream()
+                    .sorted((o1, o2) -> {
+                        return o2.getMonthYearReversed().compareTo(o1.getMonthYearReversed());
+                    })
+                    .collect(Collectors.toList());
+            } catch(Exception ex){
+            
+                ex.printStackTrace(new PrintStream(System.out));
+            }
+        }
+        
+        return accountRevisesResult;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
