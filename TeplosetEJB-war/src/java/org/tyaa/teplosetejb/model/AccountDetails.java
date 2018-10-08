@@ -27,11 +27,23 @@ public class AccountDetails {
     public String heatpoint;
     //Котельная
     public String boiler;
+    //Число жильцов
+    public Integer tenantCount;
 
     public AccountDetails() {
     }
 
-    public AccountDetails(Long code, String fio, String address, String area, String phone, String areaAddress, String heatpoint, String boiler) {
+    public AccountDetails(
+            Long code
+            , String fio
+            , String address
+            , String area
+            , String phone
+            , String areaAddress
+            , String heatpoint
+            , String boiler
+            , Integer tenantCount
+    ) {
         this.code = code;
         this.fio = fio;
         this.address = address;
@@ -40,5 +52,6 @@ public class AccountDetails {
         this.areaAddress = areaAddress;
         this.heatpoint = heatpoint;
         this.boiler = boiler;
+        this.tenantCount = tenantCount;
     }
 }

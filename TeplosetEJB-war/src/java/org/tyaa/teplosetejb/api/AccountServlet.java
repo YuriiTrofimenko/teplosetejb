@@ -49,6 +49,7 @@ import org.tyaa.teplosetejb.entity.DocMtpsBill;
 import org.tyaa.teplosetejb.entity.SaldoDetail;
 import org.tyaa.teplosetejb.entity.SprBillType;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
+import org.tyaa.teplosetejb.facade.AccountFamilyFacade;
 import org.tyaa.teplosetejb.facade.CalcresultFacade;
 import org.tyaa.teplosetejb.facade.DocMtpsBillFacade;
 import org.tyaa.teplosetejb.facade.ProcdateFacade;
@@ -84,6 +85,8 @@ public class AccountServlet extends HttpServlet {
     private SprHeatpointFacade mSprHeatpointFacade;
     @EJB
     private SprBoilerFacade mSprBoilerFacade;
+    @EJB
+    private AccountFamilyFacade mAccountFamilyFacade;
     
     //Dogovor info
     @EJB
@@ -335,6 +338,9 @@ public class AccountServlet extends HttpServlet {
         PipeEntry pipeEntry2 = mPipeEntryFacade.findByOwnerPipecode(pipesByOwners2, 40);
         Integer pipeObject2 = Integer.parseInt(String.valueOf(pipeEntry2.getPipeObject()));
         SprBoiler sprBoiler = mSprBoilerFacade.find(pipeObject2);
+        
+        Integer tenantCount =
+            mAccountFamilyFacade.tenantsCountByAccountCode(_account.getCode());
 
         AccountDetails accountDetails =
             new AccountDetails(
@@ -365,7 +371,9 @@ public class AccountServlet extends HttpServlet {
                             ? (sprBoiler.getShifr()
                                 + " "
                                 + sprBoiler.getName())
-                            : "-");
+                            : "-"
+                    , tenantCount
+            );
         return accountDetails;
     }
     //Получение суб-модели данных о договоре аккаунта
@@ -484,8 +492,11 @@ public class AccountServlet extends HttpServlet {
                         String tariff = b.getTariffTxt();
                         BigDecimal subsidyAmount = b.getSubsSumm();
                         BigDecimal amountToBePaid = b.getKOplateSumm();
+                        
+                        BigDecimal heatedArea = b.getS2();
 
-                        if (b.getBillType() != null) {
+                        Integer typeId = b.getBillType();
+                        if (typeId != null) {
                             SprBillType billType =
                                 mBillTypeFacade.find(b.getBillType());
 
@@ -497,6 +508,7 @@ public class AccountServlet extends HttpServlet {
 
                         return new AccountBill(
                                 type
+                                , typeId
                                 , titleLong
                                 , titleShort
                                 , beginMeter
@@ -505,9 +517,18 @@ public class AccountServlet extends HttpServlet {
                                 , tariff
                                 , subsidyAmount
                                 , amountToBePaid
+                                , heatedArea
                         );
                     })
                 .collect(Collectors.toList());
+            
+                if (accountBillsResult != null && accountBillsResult.size() > 1) {
+                
+                    if (accountBillsResult.get(0).typeId.equals(accountBillsResult.get(1).typeId)) {
+                        
+                        accountBillsResult.remove(1);
+                    }
+                }
         }
         
         return accountBillsResult;

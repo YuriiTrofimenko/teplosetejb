@@ -1,0 +1,10 @@
+﻿build/*
+/TeplosetEJB-war/nbproject/private/
+/nbproject/private/
+/TeplosetEJB-war/dist/
+/TeplosetEJB-war/build/
+/TeplosetEJB-ejb/nbproject/private/
+/TeplosetEJB-ejb/dist/
+/TeplosetEJB-ejb/build/
+/dist/
+/build/

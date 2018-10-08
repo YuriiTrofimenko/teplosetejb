@@ -17,6 +17,8 @@ public class AccountBill {
     
     //Тип квитанции
     public String type;
+    //Код типа квитанции
+    public Integer typeId;
     //Название услуги
     public String titleLong;
     //шифр услуги
@@ -33,12 +35,27 @@ public class AccountBill {
     public BigDecimal subsidyAmount;
     //Сумма, начисленная к оплате
     public BigDecimal amountToBePaid;
+    //Отапливаемая площадь
+    public BigDecimal heatedArea;
     
     public AccountBill() {
     }
 
-    public AccountBill(String type, String titleLong, String titleShort, BigDecimal beginMeter, BigDecimal volume, BigDecimal endMeter, String tariff, BigDecimal subsidyAmount, BigDecimal amountToBePaid) {
+    public AccountBill(
+            String type
+            , Integer typeId
+            , String titleLong
+            , String titleShort
+            , BigDecimal beginMeter
+            , BigDecimal volume
+            , BigDecimal endMeter
+            , String tariff
+            , BigDecimal subsidyAmount
+            , BigDecimal amountToBePaid
+            , BigDecimal heatedArea
+    ) {
         this.type = type;
+        this.typeId = typeId;
         this.titleLong = titleLong;
         this.titleShort = titleShort;
         this.beginMeter = beginMeter;
@@ -47,6 +64,7 @@ public class AccountBill {
         this.tariff = tariff;
         this.subsidyAmount = subsidyAmount;
         this.amountToBePaid = amountToBePaid;
+        this.heatedArea = heatedArea;
     }
 
     
