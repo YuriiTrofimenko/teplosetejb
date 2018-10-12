@@ -439,9 +439,12 @@ public class AccountServlet extends HttpServlet {
         
         accountPayments =
             (accountPayments != null && accountPayments.size() > 0)
-            ? accountPayments.stream().sorted((p1, p2) -> {
-                return p2.dateaction.compareTo(p1.dateaction);
-            }).collect(Collectors.toList())
+            ? accountPayments.stream()
+                .sorted((p1, p2) -> {
+                    return p2.dateaction.compareTo(p1.dateaction);
+                })
+                .limit(12)
+                .collect(Collectors.toList())
             : null;
         
         return accountPayments;
@@ -613,6 +616,7 @@ public class AccountServlet extends HttpServlet {
                     .sorted((o1, o2) -> {
                         return o2.getMonthYearReversed().compareTo(o1.getMonthYearReversed());
                     })
+                    .limit(12)
                     .collect(Collectors.toList());
             } catch(Exception ex){
             
