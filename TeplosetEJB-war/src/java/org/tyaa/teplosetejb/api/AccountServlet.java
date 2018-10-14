@@ -46,12 +46,14 @@ import java.util.Date;
 import org.tyaa.teplosetejb.entity.AccountDogRestr;
 import org.tyaa.teplosetejb.entity.Calcresult;
 import org.tyaa.teplosetejb.entity.DocMtpsBill;
+import org.tyaa.teplosetejb.entity.DocSubsidia;
 import org.tyaa.teplosetejb.entity.SaldoDetail;
 import org.tyaa.teplosetejb.entity.SprBillType;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
 import org.tyaa.teplosetejb.facade.AccountFamilyFacade;
 import org.tyaa.teplosetejb.facade.CalcresultFacade;
 import org.tyaa.teplosetejb.facade.DocMtpsBillFacade;
+import org.tyaa.teplosetejb.facade.DocSubsidiaFacade;
 import org.tyaa.teplosetejb.facade.ProcdateFacade;
 import org.tyaa.teplosetejb.facade.SaldoDetailFacade;
 import org.tyaa.teplosetejb.facade.SprBillTypeFacade;
@@ -62,6 +64,7 @@ import org.tyaa.teplosetejb.model.AccountAll;
 import org.tyaa.teplosetejb.model.AccountBill;
 import org.tyaa.teplosetejb.model.AccountPayments;
 import org.tyaa.teplosetejb.model.AccountRevise;
+import org.tyaa.teplosetejb.model.AccountSubsidy;
 
 /**
  *
@@ -115,6 +118,9 @@ public class AccountServlet extends HttpServlet {
     //Revise data (month saldo)
     @EJB
     private SaldoDetailFacade mSaldoDetailFacade;
+    //Susidies
+    @EJB
+    private DocSubsidiaFacade mSubsidiaFacade;
     
     @EJB
     private WebAccountDAO mWebAccountDAO;
@@ -256,6 +262,9 @@ public class AccountServlet extends HttpServlet {
                                 List<AccountRevise> accountRevises =
                                         getAccountRevise(account);
                                 
+                                List<AccountSubsidy> accountSubsidies =
+                                        getAccountSubsidies(account);
+                                
                                 AccountAll accountAll =
                                         new AccountAll(
                                                 accountDetails
@@ -263,6 +272,7 @@ public class AccountServlet extends HttpServlet {
                                                 , accountPayments
                                                 , accountBills
                                                 , accountRevises
+                                                , accountSubsidies
                                         );
                                 
                                 out.println(gson.toJson(accountAll));
@@ -625,6 +635,32 @@ public class AccountServlet extends HttpServlet {
         }
         
         return accountRevisesResult;
+    }
+    
+    //Получение суб-модели данных о субсидиях аккаунта
+    private List<AccountSubsidy> getAccountSubsidies(Account _account){
+    
+        List<DocSubsidia> subsidies =
+            mSubsidiaFacade.findByAccountCode(_account.getCode());
+        
+        List<AccountSubsidy> accountSubsidies =
+            subsidies.stream()
+                .map((s) -> {
+                            Date fromDate = s.getSDat1();
+                            
+                            Date toDate = s.getSDat2();
+                            
+                            BigDecimal sum = s.getSumm();
+                            
+                            return new AccountSubsidy(
+                                    fromDate
+                                    , toDate
+                                    , sum
+                            );
+                        })
+                .collect(Collectors.toList());
+        
+        return accountSubsidies;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

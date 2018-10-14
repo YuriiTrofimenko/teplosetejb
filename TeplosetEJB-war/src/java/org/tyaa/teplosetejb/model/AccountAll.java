@@ -24,6 +24,8 @@ public class AccountAll {
     public List<AccountBill> accountBills;
     //
     public List<AccountRevise> accountRevises;
+    //
+    public List<AccountSubsidy> accountSubsidies;
 
     public AccountAll() {
     }
@@ -34,11 +36,13 @@ public class AccountAll {
             , List<AccountPayments> accountPayments
             , List<AccountBill> accountBills
             , List<AccountRevise> accountRevises
+            , List<AccountSubsidy> accountSubsidies
     ) {
         this.accountDetails = accountDetails;
         this.accountDogRestr = accountDogRestr;
         this.accountPayments = accountPayments;
         this.accountBills = accountBills;
         this.accountRevises = accountRevises;
+        this.accountSubsidies = accountSubsidies;
     }
 }
