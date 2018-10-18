@@ -48,7 +48,7 @@ public class CalcresultFacade extends AbstractFacade<Calcresult> {
         predicateList.add(
             cb.equal(calcresultRoot.get("accountcode"), _accountcode));
         predicateList.add(
-            calcresultRoot.get("ps").in(new String[]{"40"}));
+            calcresultRoot.get("ps").in(new Object[]{"40"}));
         cq.select(calcresultRoot)
                 .where(predicateList.toArray(new Predicate[]{}));
         TypedQuery<Calcresult> q = em.createQuery(cq);
