@@ -47,13 +47,16 @@ import org.tyaa.teplosetejb.entity.AccountDogRestr;
 import org.tyaa.teplosetejb.entity.Calcresult;
 import org.tyaa.teplosetejb.entity.DocMtpsBill;
 import org.tyaa.teplosetejb.entity.DocSubsidia;
+import org.tyaa.teplosetejb.entity.MeterPipeValue;
 import org.tyaa.teplosetejb.entity.SaldoDetail;
 import org.tyaa.teplosetejb.entity.SprBillType;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
 import org.tyaa.teplosetejb.facade.AccountFamilyFacade;
 import org.tyaa.teplosetejb.facade.CalcresultFacade;
+import org.tyaa.teplosetejb.facade.CurrentprocdateFacade;
 import org.tyaa.teplosetejb.facade.DocMtpsBillFacade;
 import org.tyaa.teplosetejb.facade.DocSubsidiaFacade;
+import org.tyaa.teplosetejb.facade.MeterPipeValueFacade;
 import org.tyaa.teplosetejb.facade.ProcdateFacade;
 import org.tyaa.teplosetejb.facade.SaldoDetailFacade;
 import org.tyaa.teplosetejb.facade.SprBillTypeFacade;
@@ -72,6 +75,9 @@ import org.tyaa.teplosetejb.model.AccountSubsidy;
  */
 @WebServlet(name = "AccountServlet", urlPatterns = {"/account"})
 public class AccountServlet extends HttpServlet {
+    
+    private final Integer HOT_WATER_METER_TYPE = 1;
+    private final Integer HEAT_METER_TYPE = 2;
 
     //General account info
     @EJB
@@ -121,6 +127,12 @@ public class AccountServlet extends HttpServlet {
     //Susidies
     @EJB
     private DocSubsidiaFacade mSubsidiaFacade;
+    //Meter Value
+    @EJB
+    private MeterPipeValueFacade mMeterPipeValueFacade;
+    //Get Current Date
+    @EJB
+    private CurrentprocdateFacade mCurrentprocdateFacade;
     
     @EJB
     private WebAccountDAO mWebAccountDAO;
@@ -283,6 +295,87 @@ public class AccountServlet extends HttpServlet {
                         } catch(Exception ex){
                         
                             out.println(gson.toJson(ex.getMessage()));
+                        }
+                        break;
+                    }
+                    
+                    case "add-meter-value":{
+                        if (request.getParameterMap().containsKey("account-id")
+                                && request.getParameterMap().containsKey("meter-value")) {
+                            
+                            try{
+                                
+                                Long accountId =
+                                        Long.parseLong(request.getParameter("account-id"));
+                                BigDecimal meterValue =
+                                        new BigDecimal(request.getParameter("meter-value"));
+
+                                Account account = mAccountFacade.find(accountId);
+                                if (account != null) {
+
+                                    postMeterValue(account, meterValue);
+                                } else {
+
+                                    out.println(gson.toJson("not_found"));
+                                }
+                            } catch(Exception ex){
+                        
+                                out.println(
+                                        gson.toJson(ex.getMessage() != null
+                                                ? ex.getMessage()
+                                                : "unknown_error"
+                                        )
+                                );
+                            }
+                        } else {
+
+                            out.println(gson.toJson("incorrect_params_list"));
+                        }
+                        break;
+                    }
+                    
+                    case "get-meter-value":{
+                        if (request.getParameterMap().containsKey("account-id")
+                                && request.getParameterMap().containsKey("meter-type")) {
+                            
+                            try{
+                                
+                                Long accountId =
+                                    Long.parseLong(
+                                        request.getParameter("account-id")
+                                    );
+                                Integer meterType =
+                                    Integer.parseInt(
+                                        request.getParameter("meter-type")
+                                    );
+
+                                Account account = mAccountFacade.find(accountId);
+                                if (account != null) {
+
+                                    MeterPipeValue meterPipeValue =
+                                        getMeterValue(account, meterType);
+                                    
+                                    if (meterPipeValue != null) {
+                                        out.println(gson.toJson(meterPipeValue));
+                                    } else {
+                                        out.println(gson.toJson("no_value"));
+                                    }
+                                } else {
+
+                                    out.println(gson.toJson("not_found"));
+                                }
+                            } catch(Exception ex){
+                        
+                                out.println(
+                                        gson.toJson(ex.getMessage() != null
+                                                ? ex.getMessage()
+                                                : "unknown_error"
+                                        )
+                                );
+                            }
+                        } else {
+
+                            out.println(gson.toJson("incorrect_params_list"));
                         }
                         break;
                     }
@@ -661,6 +754,59 @@ public class AccountServlet extends HttpServlet {
                 .collect(Collectors.toList());
         
         return accountSubsidies;
+    }
+    
+    //Добавление данных о показаниях счетчика аккаунта (не доработано, не используется)
+    private void postMeterValue(Account _account, BigDecimal _meterValue){
+    
+        Long id = _account.getCode();
+        
+        AccountService accountService =
+            mAccountServiceFacade.findByAccountCode(id);
+        Integer accountPipecode = accountService.getAccountPipecode();
+        
+        //TODO
+        //Integer meterCode = null;
+        
+        MeterPipeValue meterPipeValue = new MeterPipeValue();
+        meterPipeValue.setEndvalue(_meterValue);
+        meterPipeValue.setPipecode(accountPipecode);
+        //Meter Code - ?
+        //Tt - ?
+        meterPipeValue.setTt(1);
+        meterPipeValue.setProcdate(
+                mCurrentprocdateFacade.findAll().get(0).getCode()
+        );
+        meterPipeValue.setCheckdate(new Date());
+        //TYPE_VALUE - ?
+        //DOCCODE - ?
+        //DOCPOS - ?
+        
+        mMeterPipeValueFacade.create(meterPipeValue);
+    }
+    
+    //Получение модели о показаниях счетчика аккаунта
+    private MeterPipeValue getMeterValue(Account _account, Integer _meterType){
+    
+        Long id = _account.getCode();
+        MeterPipeValue modelResult = null;
+        
+        AccountService accountService =
+            mAccountServiceFacade.findByAccountCode(id, _meterType);
+        
+        if (accountService != null) {
+            //mSprServiceFacade
+            Integer accountPipecode = accountService.getAccountPipecode();
+
+
+            List<MeterPipeValue> entityResult =
+                mMeterPipeValueFacade.findByPipeCodeAndType(accountPipecode);
+            if (entityResult != null && entityResult.size() > 0) {
+                modelResult = entityResult.get(0);
+            }
+        }
+        
+        return modelResult;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

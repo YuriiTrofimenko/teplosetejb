@@ -65,6 +65,38 @@ public class AccountServiceFacade extends AbstractFacade<AccountService> {
         return q.getResultList().get(0);
     }
     
+    public AccountService findByAccountCode(Long _accountCode, Integer _meterType) {
+        
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery cq = cb.createQuery();
+        Root<AccountService> accountServiceRoot = cq.from(AccountService.class);
+        
+        List<Predicate> predicateList = new ArrayList<>();
+        
+        predicateList.add(
+                cb.equal(accountServiceRoot.get("accountcode"), _accountCode)
+        );
+        predicateList.add(
+                cb.equal(accountServiceRoot.get("service"), _meterType)
+        );
+        /*predicateList.add(
+                cb.or(
+                    cb.isNull(accountServiceRoot.<Date>get("enddate"))
+                    , cb.greaterThanOrEqualTo(accountServiceRoot.<Date>get("enddate"), new Date())
+                )
+        );*/
+        
+        cq.select(accountServiceRoot).where(predicateList.toArray(new Predicate[]{}));
+        TypedQuery<AccountService> q = em.createQuery(cq);
+        
+        List<AccountService> accountServices =
+                q.getResultList();
+        
+        return (accountServices != null && accountServices.size() > 0)
+                ? q.getResultList().get(0)
+                : null;
+    }
+    
     public List<AccountService> findByAccountCodeTest(Long _accountCode) {
         
         CriteriaBuilder cb = em.getCriteriaBuilder();
