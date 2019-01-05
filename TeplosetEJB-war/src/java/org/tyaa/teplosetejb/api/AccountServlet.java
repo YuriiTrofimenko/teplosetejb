@@ -50,6 +50,7 @@ import org.tyaa.teplosetejb.entity.DocSubsidia;
 import org.tyaa.teplosetejb.entity.MeterPipeValue;
 import org.tyaa.teplosetejb.entity.SaldoDetail;
 import org.tyaa.teplosetejb.entity.SprBillType;
+import org.tyaa.teplosetejb.entity.SprService;
 import org.tyaa.teplosetejb.facade.AccountDogRestrFacade;
 import org.tyaa.teplosetejb.facade.AccountFamilyFacade;
 import org.tyaa.teplosetejb.facade.CalcresultFacade;
@@ -65,6 +66,7 @@ import org.tyaa.teplosetejb.facade.SprPaymenttypeFacade;
 import org.tyaa.teplosetejb.facade.SprServiceFacade;
 import org.tyaa.teplosetejb.model.AccountAll;
 import org.tyaa.teplosetejb.model.AccountBill;
+import org.tyaa.teplosetejb.model.AccountMeterValue;
 import org.tyaa.teplosetejb.model.AccountPayments;
 import org.tyaa.teplosetejb.model.AccountRevise;
 import org.tyaa.teplosetejb.model.AccountSubsidy;
@@ -355,10 +357,31 @@ public class AccountServlet extends HttpServlet {
                                     MeterPipeValue meterPipeValue =
                                         getMeterValue(account, meterType);
                                     
+                                    SprService sprService =
+                                            mSprServiceFacade.find(meterType);
+                                    
                                     if (meterPipeValue != null) {
-                                        out.println(gson.toJson(meterPipeValue));
+                                        
+                                        out.println(gson.toJson(
+                                            new AccountMeterValue(
+                                                account.getAccountshifr()
+                                                , meterPipeValue.getProcdate()
+                                                , sprService.getShifr()
+                                                , sprService.getName()
+                                                , meterPipeValue.getPipecode()
+                                                , meterPipeValue.getTt()
+                                                , meterPipeValue.getEndvalue()
+                                            )
+                                        ));
                                     } else {
-                                        out.println(gson.toJson("no_value"));
+                                        //out.println(gson.toJson("no_value"));
+                                        out.println(gson.toJson(
+                                            new AccountMeterValue(
+                                                account.getAccountshifr()
+                                                , sprService.getShifr()
+                                                , sprService.getName()
+                                            )
+                                        ));
                                     }
                                 } else {
 
