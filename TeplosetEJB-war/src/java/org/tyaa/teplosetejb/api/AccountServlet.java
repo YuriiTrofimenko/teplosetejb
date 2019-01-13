@@ -261,24 +261,26 @@ public class AccountServlet extends HttpServlet {
                                     .toUpperCase()
                                     .equals(surname.toUpperCase())){
                                 
+                                System.out.println("done");
+                                
                                 AccountDetails accountDetails =
                                     getAccountDetails(account);
-                                
+                                System.out.println("accountDetails " + accountDetails);
                                 AccountDogRestr accountDogRestr =
                                         getAccountDogRestr(account);
-                                
+                                System.out.println("accountDogRestr " + accountDogRestr);
                                 List<AccountPayments> accountPayments =
                                         getAccountPayments(account);
-                                
+                                System.out.println("accountPayments " + accountPayments);
                                 List<AccountBill> accountBills =
                                         getAccountBills(account);
-                                
+                                System.out.println("accountBills " + accountBills);
                                 List<AccountRevise> accountRevises =
                                         getAccountRevise(account);
-                                
+                                System.out.println("accountRevises " + accountRevises);
                                 List<AccountSubsidy> accountSubsidies =
                                         getAccountSubsidies(account);
-                                
+                                System.out.println("accountSubsidies " + accountSubsidies);
                                 AccountAll accountAll =
                                         new AccountAll(
                                                 accountDetails
@@ -296,6 +298,7 @@ public class AccountServlet extends HttpServlet {
                             }
                         } catch(Exception ex){
                         
+                            //System.out.println("ошб ");
                             out.println(gson.toJson(ex.getMessage()));
                         }
                         break;
@@ -562,17 +565,28 @@ public class AccountServlet extends HttpServlet {
                             );*/
                         })
                 .collect(Collectors.toList());
-        
+        try{
         accountPayments =
             (accountPayments != null && accountPayments.size() > 0)
             ? accountPayments.stream()
                 .sorted((p1, p2) -> {
-                    return p2.dateaction.compareTo(p1.dateaction);
+                    System.out.println(p1.dateaction + " -> " + p2.dateaction);
+                    int result = -1;
+                    if (p1.dateaction != null && p2.dateaction != null) {
+                        
+                        try{
+                            result = p2.dateaction.compareTo(p1.dateaction);
+                        } catch(Exception ex){}
+                    }
+                    return result;
                 })
                 .limit(12)
                 .collect(Collectors.toList())
             : null;
-        
+        } catch(Exception ex){
+            //System.out.println("ex " + ex.getStackTrace().str);
+            throw ex;
+        }
         return accountPayments;
     }
     

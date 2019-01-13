@@ -5,6 +5,7 @@
         <group>
             <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-war/src/java/org/tyaa/teplosetejb/api/AccountServlet.java</file>
             <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-war/src/java/org/tyaa/teplosetejb/model/AccountMeterValue.java</file>
+            <file>file:/home/yurii/NetBeansProjects/TeplosetEJB/TeplosetEJB-war/src/java/org/tyaa/teplosetejb/model/AccountPayments.java</file>
         </group>
     </open-files>
 </project-private>
